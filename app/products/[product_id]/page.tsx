@@ -492,7 +492,7 @@ export default function ProductPage() {
 
               {/* Product Meta Information */}
               <div className="text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p>Product ID: {product.id}</p>
+                <p>Product ID: p-{product.id.substring(0, 8)}</p>
                 <p>
                   Last updated:{" "}
                   {new Date(product.updated_at).toLocaleDateString()}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Nav } from "@/components/nav";
 import { supabase } from "@/lib/supabase";
@@ -55,6 +55,13 @@ export default function AdminDashboard() {
   const [success, setSuccess] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [adminCheckCompleted, setAdminCheckCompleted] = useState(false);
+
+  // Tab management refs
+  const adminCheckRef = useRef(false);
+  const isTabActiveRef = useRef(true);
+  const operationLockRef = useRef(false);
+  const lastOperationTimeRef = useRef(0);
 
   const [newProduct, setNewProduct] = useState<NewProductForm>({
     name: "",
@@ -73,13 +80,167 @@ export default function AdminDashboard() {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [editImagePreview, setEditImagePreview] = useState<string>("");
 
+  // Enhanced Supabase client with retry mechanism
+  const createSupabaseOperation = useCallback(
+    async (operation: () => Promise<any>, retries = 3) => {
+      const now = Date.now();
+
+      // Prevent rapid successive operations
+      if (now - lastOperationTimeRef.current < 100) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      // Operation lock to prevent concurrent operations
+      if (operationLockRef.current) {
+        console.log("Another operation is in progress. Please wait.");
+      }
+
+      operationLockRef.current = true;
+      lastOperationTimeRef.current = now;
+
+      try {
+        for (let i = 0; i < retries; i++) {
+          try {
+            const result = await operation();
+            return result;
+          } catch (error: any) {
+            console.warn(`Operation attempt ${i + 1} failed:`, error);
+
+            if (i === retries - 1) throw error;
+
+            // Wait before retry with exponential backoff
+            await new Promise((resolve) =>
+              setTimeout(resolve, Math.pow(2, i) * 1000)
+            );
+          }
+        }
+      } finally {
+        operationLockRef.current = false;
+      }
+    },
+    []
+  );
+
+  // Enhanced admin check with better error handling
+  const checkAdmin = useCallback(async () => {
+    if (adminCheckRef.current) return;
+    adminCheckRef.current = true;
+
+    try {
+      const result = await createSupabaseOperation(async () => {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.error("Auth error:", userError);
+          throw userError;
+        }
+
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Profile fetch error:", profileError);
+          throw profileError;
+        }
+
+        if (!profile || profile.role !== "admin") {
+          router.push("/");
+          return;
+        }
+
+        return { isAdmin: true };
+      });
+
+      if (result?.isAdmin) {
+        setIsAdmin(true);
+        setAdminCheckCompleted(true);
+        await fetchProducts();
+      }
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      setError(
+        "Failed to verify admin permissions. Please try refreshing the page."
+      );
+      router.push("/");
+    }
+  }, [router, createSupabaseOperation]);
+
+  // Enhanced tab visibility handling
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      isTabActiveRef.current = isVisible;
+
+      if (isVisible && adminCheckCompleted && isAdmin) {
+        // Reset operation lock when tab becomes active
+        operationLockRef.current = false;
+
+        // Refresh data after a short delay to ensure tab is fully active
+        setTimeout(() => {
+          if (isTabActiveRef.current) {
+            fetchProducts();
+          }
+        }, 500);
+      }
+    };
+
+    const handleFocus = () => {
+      isTabActiveRef.current = true;
+      if (adminCheckCompleted && isAdmin) {
+        operationLockRef.current = false;
+        setTimeout(() => {
+          if (isTabActiveRef.current) {
+            fetchProducts();
+          }
+        }, 300);
+      }
+    };
+
+    const handleBlur = () => {
+      isTabActiveRef.current = false;
+    };
+
+    // Storage event listener for cross-tab communication
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "admin_operation_lock" && e.newValue === "released") {
+        operationLockRef.current = false;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [adminCheckCompleted, isAdmin]);
+
   useEffect(() => {
     AOS.init({
       duration: 800,
       once: true,
     });
-    checkAdmin();
-  }, []);
+
+    if (!adminCheckRef.current) {
+      checkAdmin();
+    }
+  }, [checkAdmin]);
 
   useEffect(() => {
     if (newProductImage) {
@@ -112,59 +273,85 @@ export default function AdminDashboard() {
     }
   }, [error, success]);
 
-  async function checkAdmin() {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/login");
-        return;
+  // Enhanced form data persistence
+  useEffect(() => {
+    const saveFormData = () => {
+      if (newProduct.name || newProduct.description || newProduct.price) {
+        try {
+          sessionStorage.setItem(
+            "adminFormData",
+            JSON.stringify({
+              ...newProduct,
+              timestamp: Date.now(),
+            })
+          );
+        } catch (error) {
+          console.warn("Failed to save form data:", error);
+        }
       }
+    };
 
-      const { data: profile, error } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+    const handleBeforeUnload = () => {
+      saveFormData();
+      // Release operation lock
+      localStorage.setItem("admin_operation_lock", "released");
+    };
 
-      if (error || !profile || profile.role !== "admin") {
-        router.push("/");
-        return;
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    const interval = setInterval(saveFormData, 30000);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      clearInterval(interval);
+    };
+  }, [newProduct]);
+
+  // Restore form data with timestamp check
+  useEffect(() => {
+    const savedFormData = sessionStorage.getItem("adminFormData");
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        const isRecent =
+          Date.now() - (parsedData.timestamp || 0) < 24 * 60 * 60 * 1000; // 24 hours
+
+        if (isRecent) {
+          const { timestamp, ...formData } = parsedData;
+          setNewProduct(formData);
+        } else {
+          sessionStorage.removeItem("adminFormData");
+        }
+      } catch (error) {
+        console.error("Error parsing saved form data:", error);
+        sessionStorage.removeItem("adminFormData");
       }
-
-      setIsAdmin(true);
-      await fetchProducts();
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      router.push("/");
     }
-  }
+  }, []);
 
+  // Enhanced fetchProducts with better error handling
   async function fetchProducts() {
+    if (!isTabActiveRef.current && products.length > 0) return;
+
     try {
-      setLoading(true);
-      setError("");
+      const result = await createSupabaseOperation(async () => {
+        setLoading(true);
+        setError("");
 
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Supabase error:", error);
-        setError("Failed to load products. Please try again later.");
-        return;
-      }
+        if (error) {
+          console.error("Supabase error:", error);
+          throw new Error("Failed to load products. Please try again later.");
+        }
 
-      if (!data || data.length === 0) {
-        setProducts([]);
-        return;
-      }
+        return data || [];
+      });
 
-      // Transform data to ensure proper types
-      const transformedData = data.map((product) => ({
+      const transformedData = result.map((product: any) => ({
         ...product,
         images: Array.isArray(product.images)
           ? product.images
@@ -180,7 +367,9 @@ export default function AdminDashboard() {
       setProducts(transformedData);
     } catch (error: any) {
       console.error("Error fetching products:", error);
-      setError("An unexpected error occurred. Please try again later.");
+      setError(
+        error.message || "An unexpected error occurred. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -190,7 +379,6 @@ export default function AdminDashboard() {
     try {
       setUploading(true);
 
-      // Validate file
       if (file.size > 50 * 1024 * 1024) {
         throw new Error("File size must be less than 50MB");
       }
@@ -199,36 +387,38 @@ export default function AdminDashboard() {
         throw new Error("Please select a valid image file");
       }
 
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
+      const result = await createSupabaseOperation(async () => {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .substring(2)}.${fileExt}`;
+        const filePath = `products/${fileName}`;
 
-      console.log("Uploading file to:", filePath);
+        console.log("Uploading file to:", filePath);
 
-      const { error: uploadError } = await supabase.storage
-        .from("product-images")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        const { error: uploadError } = await supabase.storage
+          .from("product-images")
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
 
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
-      }
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          throw uploadError;
+        }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("product-images").getPublicUrl(filePath);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("product-images").getPublicUrl(filePath);
 
-      console.log("Image uploaded successfully:", publicUrl);
+        console.log("Image uploaded successfully:", publicUrl);
+        return publicUrl;
+      });
 
-      // Add a small delay to ensure the image is available
+      // Add delay to ensure image is available
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      return publicUrl;
+      return result;
     } catch (error: any) {
       console.error("Error uploading product image:", error);
       throw new Error(`Image upload failed: ${error.message}`);
@@ -239,12 +429,17 @@ export default function AdminDashboard() {
 
   async function handleAddProduct(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!isTabActiveRef.current) {
+      setError("Please focus on this tab to perform operations.");
+      return;
+    }
+
     setSubmitting(true);
     setError("");
     setSuccess("");
 
     try {
-      // Validate required fields
       if (!newProduct.name.trim()) {
         throw new Error("Product name is required");
       }
@@ -255,7 +450,6 @@ export default function AdminDashboard() {
       let imageUrl = null;
       let images: string[] = [];
 
-      // Upload image if provided
       if (newProductImage) {
         console.log("Starting image upload...");
         imageUrl = await handleProductImageUpload(newProductImage);
@@ -264,36 +458,39 @@ export default function AdminDashboard() {
         }
       }
 
-      // Prepare product data
-      const productData = {
-        name: newProduct.name.trim(),
-        description: newProduct.description.trim() || null,
-        price: parseFloat(newProduct.price),
-        category: newProduct.category,
-        weight: newProduct.weight ? parseInt(newProduct.weight) : null,
-        stock: newProduct.stock ? parseInt(newProduct.stock) : 0,
-        flavor: newProduct.flavor.trim() || null,
-        image_url: imageUrl,
-        images: images,
-      };
+      const result = await createSupabaseOperation(async () => {
+        const productData = {
+          name: newProduct.name.trim(),
+          description: newProduct.description.trim() || null,
+          price: parseFloat(newProduct.price),
+          category: newProduct.category,
+          weight: newProduct.weight ? parseInt(newProduct.weight) : null,
+          stock: newProduct.stock ? parseInt(newProduct.stock) : 0,
+          flavor: newProduct.flavor.trim() || null,
+          image_url: imageUrl,
+          images: images,
+        };
 
-      console.log("Inserting product data:", productData);
+        console.log("Inserting product data:", productData);
 
-      const { data, error } = await supabase
-        .from("products")
-        .insert([productData])
-        .select()
-        .single();
+        const { data, error } = await supabase
+          .from("products")
+          .insert([productData])
+          .select()
+          .single();
 
-      if (error) {
-        console.error("Database insert error:", error);
-        throw error;
-      }
+        if (error) {
+          console.error("Database insert error:", error);
+          throw error;
+        }
 
-      console.log("Product added successfully:", data);
+        return data;
+      });
+
+      console.log("Product added successfully:", result);
       setSuccess("Product added successfully!");
 
-      // Reset form
+      // Reset form and clear saved data
       setNewProduct({
         name: "",
         description: "",
@@ -305,8 +502,8 @@ export default function AdminDashboard() {
       });
       setNewProductImage(null);
       setImagePreview("");
+      sessionStorage.removeItem("adminFormData");
 
-      // Refresh products list
       await fetchProducts();
     } catch (error: any) {
       console.error("Error adding product:", error);
@@ -319,6 +516,11 @@ export default function AdminDashboard() {
   async function handleUpdateProduct(e: React.FormEvent) {
     e.preventDefault();
     if (!editingProduct) return;
+
+    if (!isTabActiveRef.current) {
+      setError("Please focus on this tab to perform operations.");
+      return;
+    }
 
     setSubmitting(true);
     setError("");
@@ -336,29 +538,31 @@ export default function AdminDashboard() {
         }
       }
 
-      const updateData = {
-        name: editingProduct.name.trim(),
-        description: editingProduct.description?.trim() || null,
-        price: editingProduct.price,
-        category: editingProduct.category,
-        weight: editingProduct.weight,
-        stock: editingProduct.stock,
-        flavor: editingProduct.flavor?.trim() || null,
-        image_url: imageUrl,
-        images: images,
-      };
+      await createSupabaseOperation(async () => {
+        const updateData = {
+          name: editingProduct.name.trim(),
+          description: editingProduct.description?.trim() || null,
+          price: editingProduct.price,
+          category: editingProduct.category,
+          weight: editingProduct.weight,
+          stock: editingProduct.stock,
+          flavor: editingProduct.flavor?.trim() || null,
+          image_url: imageUrl,
+          images: images,
+        };
 
-      console.log("Updating product with data:", updateData);
+        console.log("Updating product with data:", updateData);
 
-      const { error } = await supabase
-        .from("products")
-        .update(updateData)
-        .eq("id", editingProduct.id);
+        const { error } = await supabase
+          .from("products")
+          .update(updateData)
+          .eq("id", editingProduct.id);
 
-      if (error) {
-        console.error("Update error:", error);
-        throw error;
-      }
+        if (error) {
+          console.error("Update error:", error);
+          throw error;
+        }
+      });
 
       setSuccess("Product updated successfully!");
       setEditingProduct(null);
@@ -375,19 +579,26 @@ export default function AdminDashboard() {
   }
 
   async function handleDeleteProduct(id: string, name: string) {
+    if (!isTabActiveRef.current) {
+      setError("Please focus on this tab to perform operations.");
+      return;
+    }
+
     setSubmitting(true);
     setError("");
     setSuccess("");
 
     try {
-      console.log("Deleting product with ID:", id);
+      await createSupabaseOperation(async () => {
+        console.log("Deleting product with ID:", id);
 
-      const { error } = await supabase.from("products").delete().eq("id", id);
+        const { error } = await supabase.from("products").delete().eq("id", id);
 
-      if (error) {
-        console.error("Delete error:", error);
-        throw error;
-      }
+        if (error) {
+          console.error("Delete error:", error);
+          throw error;
+        }
+      });
 
       setSuccess("Product deleted successfully!");
       await fetchProducts();
@@ -435,7 +646,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Get product image with proper fallback
   const getProductImage = (product: Product) => {
     if (product.images && product.images.length > 0) {
       return product.images[0];
@@ -446,7 +656,7 @@ export default function AdminDashboard() {
     return null;
   };
 
-  if (!isAdmin) {
+  if (!adminCheckCompleted) {
     return (
       <div className="flex min-h-screen flex-col">
         <Nav />
@@ -457,6 +667,28 @@ export default function AdminDashboard() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                 <p className="text-gray-500 dark:text-gray-400">
                   Checking permissions...
+                </p>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Nav />
+        <main className="flex-1 py-8">
+          <div className="container px-4 md:px-6">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <p className="text-red-500 text-lg font-medium">
+                  Access Denied
+                </p>
+                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                  You don't have permission to access this page.
                 </p>
               </div>
             </div>
@@ -478,6 +710,11 @@ export default function AdminDashboard() {
             <p className="mt-2 text-gray-500 dark:text-gray-400">
               Manage your products here
             </p>
+            {!isTabActiveRef.current && (
+              <div className="mt-2 text-orange-500 text-sm">
+                ⚠️ Tab is not focused. Some operations may be limited.
+              </div>
+            )}
           </div>
 
           {error && (
@@ -780,7 +1017,6 @@ export default function AdminDashboard() {
                   data-aos="fade-up"
                   className="group relative flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:shadow-neutral-700"
                 >
-                  {/* Stock indicator */}
                   {(product.stock || 0) <= 0 && (
                     <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                       Out of Stock
