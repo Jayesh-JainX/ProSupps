@@ -5,16 +5,19 @@ A modern e-commerce platform built with Next.js 13+ for selling whey protein sup
 ## Features
 
 - **User Authentication**
+
   - Email/password signup and login
   - Protected routes for authenticated users
   - User profile management
 
 - **Product Management**
+
   - Browse product catalog
   - Detailed product pages with descriptions
   - Product search and filtering
 
 - **Admin Dashboard**
+
   - Product inventory management
   - User management
   - Order tracking
@@ -37,19 +40,21 @@ A modern e-commerce platform built with Next.js 13+ for selling whey protein sup
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Supabase account
 
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone <repository-url>
 cd whey-protein
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 # or
@@ -57,13 +62,15 @@ yarn install
 ```
 
 3. Set up environment variables
-Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 4. Run the development server
+
 ```bash
 npm run dev
 # or

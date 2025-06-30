@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 
 interface Product {
   id: string;
@@ -29,6 +30,7 @@ interface Product {
   category: string | null;
   weight: number | null;
   stock: number | null;
+  flavor: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +42,7 @@ interface NewProductForm {
   category: string;
   weight: string;
   stock: string;
+  flavor: string;
 }
 
 export default function AdminDashboard() {
@@ -60,6 +63,7 @@ export default function AdminDashboard() {
     category: "protein",
     weight: "",
     stock: "",
+    flavor: "",
   });
 
   const [newProductImage, setNewProductImage] = useState<File | null>(null);
@@ -96,6 +100,17 @@ export default function AdminDashboard() {
       setEditImagePreview("");
     }
   }, [editingProductImage]);
+
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
 
   async function checkAdmin() {
     try {
@@ -156,9 +171,10 @@ export default function AdminDashboard() {
           : product.image_url
           ? [product.image_url]
           : [],
-        category: product.category || "uncategorized",
+        category: product.category || "protein",
         weight: product.weight || 0,
         stock: product.stock || 0,
+        flavor: product.flavor || null,
       }));
 
       setProducts(transformedData);
@@ -256,6 +272,7 @@ export default function AdminDashboard() {
         category: newProduct.category,
         weight: newProduct.weight ? parseInt(newProduct.weight) : null,
         stock: newProduct.stock ? parseInt(newProduct.stock) : 0,
+        flavor: newProduct.flavor.trim() || null,
         image_url: imageUrl,
         images: images,
       };
@@ -284,6 +301,7 @@ export default function AdminDashboard() {
         category: "protein",
         weight: "",
         stock: "",
+        flavor: "",
       });
       setNewProductImage(null);
       setImagePreview("");
@@ -318,22 +336,29 @@ export default function AdminDashboard() {
         }
       }
 
+      const updateData = {
+        name: editingProduct.name.trim(),
+        description: editingProduct.description?.trim() || null,
+        price: editingProduct.price,
+        category: editingProduct.category,
+        weight: editingProduct.weight,
+        stock: editingProduct.stock,
+        flavor: editingProduct.flavor?.trim() || null,
+        image_url: imageUrl,
+        images: images,
+      };
+
+      console.log("Updating product with data:", updateData);
+
       const { error } = await supabase
         .from("products")
-        .update({
-          name: editingProduct.name,
-          description: editingProduct.description,
-          price: editingProduct.price,
-          category: editingProduct.category,
-          weight: editingProduct.weight,
-          stock: editingProduct.stock,
-          image_url: imageUrl,
-          images: images,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", editingProduct.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Update error:", error);
+        throw error;
+      }
 
       setSuccess("Product updated successfully!");
       setEditingProduct(null);
@@ -350,17 +375,27 @@ export default function AdminDashboard() {
   }
 
   async function handleDeleteProduct(id: string, name: string) {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+    setSubmitting(true);
+    setError("");
+    setSuccess("");
 
     try {
+      console.log("Deleting product with ID:", id);
+
       const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
+
+      if (error) {
+        console.error("Delete error:", error);
+        throw error;
+      }
 
       setSuccess("Product deleted successfully!");
       await fetchProducts();
     } catch (error: any) {
       console.error("Error deleting product:", error);
       setError(error.message || "Failed to delete product");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -553,7 +588,7 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                   <Label htmlFor="category" className="my-2">
                     Category
@@ -565,7 +600,7 @@ export default function AdminDashboard() {
                     }
                     disabled={submitting || uploading}
                   >
-                    <SelectTrigger className="min-w-xs">
+                    <SelectTrigger className="min-w-full">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -606,6 +641,20 @@ export default function AdminDashboard() {
                     value={newProduct.stock}
                     onChange={(e) =>
                       setNewProduct({ ...newProduct, stock: e.target.value })
+                    }
+                    disabled={submitting || uploading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="flavor" className="my-2">
+                    Flavor
+                  </Label>
+                  <Input
+                    id="flavor"
+                    placeholder="Flavor"
+                    value={newProduct.flavor}
+                    onChange={(e) =>
+                      setNewProduct({ ...newProduct, flavor: e.target.value })
                     }
                     disabled={submitting || uploading}
                   />
@@ -812,7 +861,7 @@ export default function AdminDashboard() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="grid gap-4 sm:grid-cols-3">
                         <Input
                           type="number"
                           min="0"
@@ -837,6 +886,17 @@ export default function AdminDashboard() {
                             })
                           }
                           placeholder="Stock"
+                          disabled={submitting || uploading}
+                        />
+                        <Input
+                          value={editingProduct.flavor || ""}
+                          onChange={(e) =>
+                            setEditingProduct({
+                              ...editingProduct,
+                              flavor: e.target.value,
+                            })
+                          }
+                          placeholder="Flavor"
                           disabled={submitting || uploading}
                         />
                       </div>
@@ -970,6 +1030,10 @@ export default function AdminDashboard() {
                                 : `${product.stock} units`}
                             </span>
                           </div>
+                          <div>
+                            <span className="font-medium">Flavor:</span>{" "}
+                            {product.flavor || "N/A"}
+                          </div>
                         </div>
 
                         <div className="mt-4 flex items-center justify-between">
@@ -994,17 +1058,21 @@ export default function AdminDashboard() {
                           >
                             Edit
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() =>
+                          <DeleteConfirmDialog
+                            productName={product.name}
+                            onConfirm={() =>
                               handleDeleteProduct(product.id, product.name)
                             }
-                            disabled={submitting || uploading}
-                            className="flex-1"
                           >
-                            Delete
-                          </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              disabled={submitting || uploading}
+                              className="flex-1"
+                            >
+                              Delete
+                            </Button>
+                          </DeleteConfirmDialog>
                         </div>
                       </div>
                     </>
