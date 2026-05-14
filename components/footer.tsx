@@ -9,25 +9,34 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">About Us</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              We are dedicated to providing the highest quality whey protein supplements
-              to help you achieve your fitness goals.
+              We are dedicated to providing the highest quality whey protein
+              supplements to help you achieve your fitness goals.
             </p>
           </div>
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
               <li>
-                <Link href="/products" className="hover:text-gray-900 dark:hover:text-white">
+                <Link
+                  href="/products"
+                  className="hover:text-gray-900 dark:hover:text-white"
+                >
                   Products
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-gray-900 dark:hover:text-white">
+                <Link
+                  href="/about"
+                  className="hover:text-gray-900 dark:hover:text-white"
+                >
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-gray-900 dark:hover:text-white">
+                <Link
+                  href="/contact"
+                  className="hover:text-gray-900 dark:hover:text-white"
+                >
                   Contact
                 </Link>
               </li>
@@ -45,7 +54,10 @@ export function Footer() {
             <h3 className="text-lg font-semibold">Connect With Us</h3>
             <div className="flex space-x-2">
               <Link
-                href={process.env.NEXT_PUBLIC_TELEGRAM_LINK || "https://t.me/prosupps_official"}
+                href={
+                  process.env.NEXT_PUBLIC_TELEGRAM_LINK ||
+                  "https://t.me/prosupps_official"
+                }
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,18 +22,20 @@ export default function Login() {
   }, []);
 
   async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       const { data: profile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
         .single();
 
-      if (profile?.role === 'admin') {
-        router.push('/admin');
+      if (profile?.role === "admin") {
+        router.push("/admin");
       } else {
-        router.push('/');
+        router.push("/");
       }
     }
   }
@@ -53,40 +55,40 @@ export default function Login() {
 
       if (data.user) {
         const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', data.user.id)
+          .from("users")
+          .select("*")
+          .eq("id", data.user.id)
           .single();
 
         // If profile doesn't exist, create it
         if (!profile) {
-          const { error: profileError } = await supabase.from('users').insert([
+          const { error: profileError } = await supabase.from("users").insert([
             {
               id: data.user.id,
               email: data.user.email,
-              full_name: data.user.user_metadata?.full_name || '',
-              avatar_url: data.user.user_metadata?.avatar_url || '',
-              role: 'user',
+              full_name: data.user.user_metadata?.full_name || "",
+              avatar_url: data.user.user_metadata?.avatar_url || "",
+              role: "user",
             },
           ]);
 
           if (profileError) {
-            throw new Error('Failed to create user profile. Please try again.');
+            throw new Error("Failed to create user profile. Please try again.");
           }
 
           // Redirect new user
-          router.push('/');
+          router.push("/");
         } else {
           // Redirect based on existing user role
-          if (profile.role === 'admin') {
-            router.push('/admin');
+          if (profile.role === "admin") {
+            router.push("/admin");
           } else {
-            router.push('/');
+            router.push("/");
           }
         }
       }
     } catch (error: any) {
-      setError(error.message || 'An error occurred during login');
+      setError(error.message || "An error occurred during login");
     } finally {
       setLoading(false);
     }
@@ -110,7 +112,10 @@ export default function Login() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                >
                   Email
                 </label>
                 <Input
@@ -123,7 +128,10 @@ export default function Login() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+                >
                   Password
                 </label>
                 <Input
@@ -135,12 +143,8 @@ export default function Login() {
                   className="mt-1"
                 />
               </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? 'Logging in...' : 'Login'}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
               </Button>
             </form>
           </div>

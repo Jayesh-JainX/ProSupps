@@ -133,14 +133,14 @@ export function Nav() {
       : user?.email?.[0]?.toUpperCase() || "U";
 
     return (
-      <div className="h-full w-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+      <div className="h-full w-full rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
         {initials}
       </div>
     );
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between pl-4">
         <div className="flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">

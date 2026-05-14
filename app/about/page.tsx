@@ -23,7 +23,8 @@ export default function About() {
               About ProSupps
             </h1>
             <p className="mt-4 text-gray-500 md:text-xl dark:text-gray-400">
-              Dedicated to delivering premium quality whey protein supplements for your fitness journey.
+              Dedicated to delivering premium quality whey protein supplements
+              for your fitness journey.
             </p>
           </div>
 
@@ -47,7 +48,9 @@ export default function About() {
               </div>
               <h3 className="text-xl font-bold">Our Mission</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                To provide the highest quality protein supplements that help our customers achieve their fitness goals and maintain a healthy lifestyle.
+                To provide the highest quality protein supplements that help our
+                customers achieve their fitness goals and maintain a healthy
+                lifestyle.
               </p>
             </div>
 
@@ -70,7 +73,9 @@ export default function About() {
               </div>
               <h3 className="text-xl font-bold">Quality Commitment</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                We source only the finest ingredients and maintain strict quality control throughout our manufacturing process to ensure product excellence.
+                We source only the finest ingredients and maintain strict
+                quality control throughout our manufacturing process to ensure
+                product excellence.
               </p>
             </div>
 
@@ -93,18 +98,31 @@ export default function About() {
               </div>
               <h3 className="text-xl font-bold">Customer Focus</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Your success is our success. We're dedicated to supporting your fitness journey with expert advice and premium products.
+                Your success is our success. We're dedicated to supporting your
+                fitness journey with expert advice and premium products.
               </p>
             </div>
           </div>
 
-          <div data-aos="fade-up" className="mx-auto mt-16 max-w-3xl rounded-lg bg-neutral-50 p-8 dark:bg-neutral-900">
+          <div
+            data-aos="fade-up"
+            className="mx-auto mt-16 max-w-3xl rounded-lg bg-neutral-50 p-8 dark:bg-neutral-900"
+          >
             <h2 className="text-2xl font-bold">Our Story</h2>
             <p className="mt-4 text-gray-500 dark:text-gray-400">
-              Founded by fitness enthusiasts, ProSupps began with a simple mission: to create the highest quality whey protein supplements that deliver real results. We understand the importance of proper nutrition in achieving fitness goals, which is why we've dedicated ourselves to developing products that meet the highest standards of quality and effectiveness.
+              Founded by fitness enthusiasts, ProSupps began with a simple
+              mission: to create the highest quality whey protein supplements
+              that deliver real results. We understand the importance of proper
+              nutrition in achieving fitness goals, which is why we've dedicated
+              ourselves to developing products that meet the highest standards
+              of quality and effectiveness.
             </p>
             <p className="mt-4 text-gray-500 dark:text-gray-400">
-              Today, we continue to innovate and improve our products, working closely with nutrition experts and athletes to ensure we're delivering the best possible supplements to our customers. Our commitment to quality and customer satisfaction remains at the heart of everything we do.
+              Today, we continue to innovate and improve our products, working
+              closely with nutrition experts and athletes to ensure we're
+              delivering the best possible supplements to our customers. Our
+              commitment to quality and customer satisfaction remains at the
+              heart of everything we do.
             </p>
           </div>
         </div>

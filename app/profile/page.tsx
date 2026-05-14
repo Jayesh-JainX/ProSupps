@@ -265,7 +265,7 @@ export default function ProfilePage() {
           {error && (
             <div className="mb-6 rounded-lg bg-red-100 p-4 text-red-700 dark:bg-red-900 dark:text-red-100">
               <div className="flex">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <svg
                     className="h-5 w-5"
                     viewBox="0 0 20 20"
@@ -288,7 +288,7 @@ export default function ProfilePage() {
           {success && (
             <div className="mb-6 rounded-lg bg-green-100 p-4 text-green-700 dark:bg-green-900 dark:text-green-100">
               <div className="flex">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <svg
                     className="h-5 w-5"
                     viewBox="0 0 20 20"

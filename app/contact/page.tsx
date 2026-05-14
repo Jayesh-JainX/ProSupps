@@ -51,12 +51,18 @@ export default function Contact() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold">Connect with Us on Telegram</h2>
+              <h2 className="text-2xl font-bold">
+                Connect with Us on Telegram
+              </h2>
               <p className="text-gray-500 dark:text-gray-400">
-                Join our Telegram channel for quick responses, product updates, and exclusive offers.
+                Join our Telegram channel for quick responses, product updates,
+                and exclusive offers.
               </p>
               <Link
-                href={process.env.NEXT_PUBLIC_TELEGRAM_LINK || "https://t.me/prosupps_official"}
+                href={
+                  process.env.NEXT_PUBLIC_TELEGRAM_LINK ||
+                  "https://t.me/prosupps_official"
+                }
                 target="_blank"
                 rel="noopener noreferrer"
               >
