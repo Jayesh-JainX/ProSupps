@@ -24,7 +24,10 @@ export default function Home() {
         <section className="relative overflow-hidden py-20 sm:py-32 lg:pb-32 xl:pb-36">
           <div className="container px-4 md:px-6">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-              <div data-aos="fade-right" className="flex flex-col justify-center space-y-4">
+              <div
+                data-aos="fade-right"
+                className="flex flex-col justify-center space-y-4"
+              >
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                     Premium Whey Protein
@@ -32,8 +35,9 @@ export default function Home() {
                     For Peak Performance
                   </h1>
                   <p className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                    Fuel your workouts with our premium whey protein. Made with the finest ingredients
-                    for optimal muscle recovery and growth.
+                    Fuel your workouts with our premium whey protein. Made with
+                    the finest ingredients for optimal muscle recovery and
+                    growth.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -42,14 +46,26 @@ export default function Home() {
                       View Products
                     </Button>
                   </Link>
-                  <Link href={process.env.NEXT_PUBLIC_TELEGRAM_LINK || "https://t.me/prosupps_official"}>
-                    <Button variant="outline" size="lg" className="w-full min-[400px]:w-auto">
+                  <Link
+                    href={
+                      process.env.NEXT_PUBLIC_TELEGRAM_LINK ||
+                      "https://t.me/prosupps_official"
+                    }
+                  >
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full min-[400px]:w-auto"
+                    >
                       Contact Us
                     </Button>
                   </Link>
                 </div>
               </div>
-              <div data-aos="fade-left" className="mx-auto flex items-center justify-center lg:justify-end">
+              <div
+                data-aos="fade-left"
+                className="mx-auto flex items-center justify-center lg:justify-end"
+              >
                 <Image
                   src="/whey_prot.jpg"
                   alt="Whey Protein Product"
@@ -68,11 +84,18 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 data-aos="fade-up" className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                <h2
+                  data-aos="fade-up"
+                  className="text-3xl font-bold tracking-tighter sm:text-5xl"
+                >
                   Why Choose Our Protein?
                 </h2>
-                <p data-aos="fade-up" className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                  Our whey protein is designed to provide you with the highest quality nutrition for your fitness journey.
+                <p
+                  data-aos="fade-up"
+                  className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
+                >
+                  Our whey protein is designed to provide you with the highest
+                  quality nutrition for your fitness journey.
                 </p>
               </div>
             </div>
@@ -88,7 +111,9 @@ export default function Home() {
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-bold">{feature.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{feature.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {feature.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -98,11 +123,18 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <h2 data-aos="fade-up" className="text-3xl font-bold tracking-tighter sm:text-5xl">
+              <h2
+                data-aos="fade-up"
+                className="text-3xl font-bold tracking-tighter sm:text-5xl"
+              >
                 Benefits of Our Protein
               </h2>
-              <p data-aos="fade-up" className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Experience the difference with our premium whey protein supplements.
+              <p
+                data-aos="fade-up"
+                className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
+              >
+                Experience the difference with our premium whey protein
+                supplements.
               </p>
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
@@ -114,7 +146,9 @@ export default function Home() {
                   className="rounded-lg border p-6 bg-white dark:bg-neutral-950 shadow-sm"
                 >
                   <h3 className="text-lg font-bold mb-2">{benefit.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{benefit.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {benefit.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -125,11 +159,18 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32 bg-neutral-50 dark:bg-neutral-900">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <h2 data-aos="fade-up" className="text-3xl font-bold tracking-tighter sm:text-5xl">
+              <h2
+                data-aos="fade-up"
+                className="text-3xl font-bold tracking-tighter sm:text-5xl"
+              >
                 What Our Customers Say
               </h2>
-              <p data-aos="fade-up" className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Don't just take our word for it - hear from our satisfied customers.
+              <p
+                data-aos="fade-up"
+                className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
+              >
+                Don't just take our word for it - hear from our satisfied
+                customers.
               </p>
             </div>
             <div className="mx-auto grid max-w-5xl gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
@@ -144,10 +185,11 @@ export default function Home() {
                     "{testimonial.text}"
                   </p>
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 rounded-full bg-neutral-100 dark:bg-neutral-800" />
                     <div>
                       <p className="text-sm font-medium">{testimonial.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{testimonial.title}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {testimonial.title}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -160,11 +202,18 @@ export default function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <h2 data-aos="fade-up" className="text-3xl font-bold tracking-tighter sm:text-5xl">
+              <h2
+                data-aos="fade-up"
+                className="text-3xl font-bold tracking-tighter sm:text-5xl"
+              >
                 Ready to Start Your Fitness Journey?
               </h2>
-              <p data-aos="fade-up" className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                Join thousands of satisfied customers who have transformed their fitness with our premium whey protein.
+              <p
+                data-aos="fade-up"
+                className="max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400"
+              >
+                Join thousands of satisfied customers who have transformed their
+                fitness with our premium whey protein.
               </p>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Link href="/products">
@@ -173,7 +222,11 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/contact">
-                  <Button variant="outline" size="lg" className="w-full min-[400px]:w-auto">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full min-[400px]:w-auto"
+                  >
                     Learn More
                   </Button>
                 </Link>
@@ -189,52 +242,56 @@ export default function Home() {
 const benefits = [
   {
     title: "Muscle Growth",
-    description: "Supports lean muscle growth and maintenance with high-quality protein."
+    description:
+      "Supports lean muscle growth and maintenance with high-quality protein.",
   },
   {
     title: "Quick Recovery",
-    description: "Speeds up post-workout recovery and reduces muscle soreness."
+    description: "Speeds up post-workout recovery and reduces muscle soreness.",
   },
   {
     title: "Easy Digestion",
-    description: "Easily digestible formula that's gentle on your stomach."
+    description: "Easily digestible formula that's gentle on your stomach.",
   },
   {
     title: "Immune Support",
-    description: "Contains essential nutrients that support immune system function."
+    description:
+      "Contains essential nutrients that support immune system function.",
   },
   {
     title: "Energy Boost",
-    description: "Provides sustained energy for better workout performance."
+    description: "Provides sustained energy for better workout performance.",
   },
   {
     title: "Weight Management",
-    description: "Helps maintain healthy weight by supporting lean muscle mass."
-  }
+    description:
+      "Helps maintain healthy weight by supporting lean muscle mass.",
+  },
 ];
 
 const testimonials = [
   {
     text: "I've tried many protein supplements, but this is by far the best. Great taste and amazing results!",
     name: "John D.",
-    title: "Fitness Enthusiast"
+    title: "Fitness Enthusiast",
   },
   {
     text: "The quality is outstanding. I've seen significant improvements in my recovery time.",
     name: "Sarah M.",
-    title: "Personal Trainer"
+    title: "Personal Trainer",
   },
   {
     text: "Delicious flavors and mixes perfectly. It's now an essential part of my daily routine.",
     name: "Mike R.",
-    title: "Amateur Athlete"
-  }
+    title: "Amateur Athlete",
+  },
 ];
 
 const features = [
   {
     title: "High Quality Ingredients",
-    description: "Made with premium whey protein isolate for maximum protein content and minimal fats.",
+    description:
+      "Made with premium whey protein isolate for maximum protein content and minimal fats.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -254,7 +311,8 @@ const features = [
   },
   {
     title: "Fast Absorption",
-    description: "Specially formulated for quick absorption and rapid muscle recovery after workouts.",
+    description:
+      "Specially formulated for quick absorption and rapid muscle recovery after workouts.",
     icon: (
       <svg
         className="h-6 w-6"
@@ -274,7 +332,8 @@ const features = [
   },
   {
     title: "Great Taste",
-    description: "Available in multiple delicious flavors that you'll love to drink every day.",
+    description:
+      "Available in multiple delicious flavors that you'll love to drink every day.",
     icon: (
       <svg
         className="h-6 w-6"
