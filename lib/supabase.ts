@@ -9,7 +9,16 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+    global: {
+      fetch: (...args) => fetch(args[0], { ...args[1], cache: "no-store" }),
+    },
+  }
 );
 
 export type Database = {

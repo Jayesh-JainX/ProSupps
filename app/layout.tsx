@@ -37,6 +37,23 @@ export const metadata: Metadata = {
     title: process.env.NEXT_PUBLIC_SITE_NAME,
     description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
   },
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      { url: "/favicon.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: "/favicon.png", sizes: "192x192", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: process.env.NEXT_PUBLIC_SITE_NAME || "ProSupps",
+  },
+};
+
+export const viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

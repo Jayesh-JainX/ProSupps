@@ -46,14 +46,16 @@ export function Nav() {
     checkUser();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchUserProfile(session.user.id);
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setTimeout(() => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchUserProfile(session.user.id).finally(() => setLoading(false));
+        } else {
+          setUserProfile(null);
+          setLoading(false);
+        }
+      }, 0);
     });
 
     return () => subscription.unsubscribe();
